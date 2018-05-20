@@ -16,7 +16,7 @@ fun main(args: Array<String>) {
 
     println("请输入空闲分区的个数:")
 
-    val n: Int = scan.nextInt()     //空闲区个数
+    val numOfMemoryPiece: Int = scan.nextInt()     //空闲区个数
     val memoryTable = ArrayList<MemoryPiece>()      //空闲区表
     val minSize = 2         //不可再分割大小
     var lastIndex = 0      //NF算法中指向最后一次分配的
@@ -47,7 +47,7 @@ fun main(args: Array<String>) {
         var address = 0
         val addressFactor = 30
         val sizeFactor = 100
-        for (i in 0 until n) {
+        for (i in 0 until numOfMemoryPiece) {
             address += Random().nextInt(addressFactor)
             val size = Random().nextInt(sizeFactor) + minSize
             memoryTable.add(MemoryPiece(address, size, false))

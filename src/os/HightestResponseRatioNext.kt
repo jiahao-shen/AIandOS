@@ -33,13 +33,13 @@ fun main(args: Array<String>) {
     val finishQueue = ArrayList<PCBNode>()      //进程结束队列
 
     var totalTime = 0
-    val n: Int
+    val numOfProcess: Int
 
     println("请输入进程数量n:")
-    n = scan.nextInt()
+    numOfProcess = scan.nextInt()
 
     println("请输入进程名称,到达时间和服务时间(例如:A 0 1):")
-    for (i in 0 until n) {
+    for (i in 0 until numOfProcess) {
         val name = scan.next()
         val arriveTime = scan.nextInt()
         val serviceTime = scan.nextInt()
@@ -51,7 +51,7 @@ fun main(args: Array<String>) {
     var tempQueue: PriorityQueue<PCBNode>
 
     while (true) {
-        if (finishQueue.size == n)
+        if (finishQueue.size == numOfProcess)
             break
         while (!waitQueue.isEmpty() && waitQueue.peek().arriveTime == totalTime) {
             val waitTop = waitQueue.poll()
@@ -97,8 +97,8 @@ fun main(args: Array<String>) {
         validWorkTime += value.serviceTime
     }
 
-    aveTurnOverTime /= n
-    aveTurnOverTimeWithWeight /= n
+    aveTurnOverTime /= numOfProcess
+    aveTurnOverTimeWithWeight /= numOfProcess
     utilizationOfCPU = validWorkTime * 100 / totalTime
     println("平均周转时间:$aveTurnOverTime")
     println("平均带权周转时间:$aveTurnOverTimeWithWeight")
