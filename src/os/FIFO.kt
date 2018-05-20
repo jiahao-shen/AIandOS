@@ -75,14 +75,13 @@ fun main(args: Array<String>) {
         if (containsPageInMemoryPiece(item) == -1) {      //不在内存块中
             if (memoryPieceList.size < numOfMemoryPiece) {
                 memoryPieceList.add(MemoryPiece(item))
-                output()
             } else {
                 cntOfExchange++
                 val replacedIndex = searchEarliestPiece()
                 memoryPieceList[replacedIndex].value = item
                 memoryPieceList[replacedIndex].time = 0
-                output()
             }
+            output()
             cntOfLack++
         }
     }

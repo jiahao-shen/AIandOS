@@ -3,9 +3,10 @@ package os
 import java.util.*
 
 fun main(args: Array<String>) {
+
     val scan = Scanner(System.`in`)
 
-    class MemoryPiece(var value: Int, var time: Int = 0)
+    class MemoryPiece(var value: Int, var visited: Int = 1, var writed: Int = (Random().nextInt(10) % 2))
 
     println("请输入物理块的个数:")
 
@@ -33,6 +34,7 @@ fun main(args: Array<String>) {
     }
     println()
 
+    //查找该页号是否存在物理内存中
     fun containsPageInMemoryPiece(pageNumber: Int): Int {
         for ((index, item) in memoryPieceList.withIndex()) {
             if (item.value == pageNumber)
@@ -41,49 +43,50 @@ fun main(args: Array<String>) {
         return -1
     }
 
-    fun searchLeastRecentlyUsedPiece(): Int {
-        var max = Integer.MIN_VALUE
-        var result = -1
-        for ((index, item) in memoryPieceList.withIndex()) {
-            if (item.time > max) {
-                result = index
-                max = item.time
-            }
-        }
-        return result
-    }
-
     fun output() {
         for (item in memoryPieceList) {
-            print("${item.value}\t")
+            if (item.writed == 0)
+                print("${item.value}\t")
+            else
+                print("${item.value}*\t")
         }
         println()
     }
 
-    fun countTime() {
-        for (item in memoryPieceList)
-            item.time++
+    fun searchReplacedPiece(): Int {
+        for ((index, item) in memoryPieceList.withIndex()) {
+            if (item.visited == 0 && item.writed == 0)
+                return index
+        }
+        for ((index, item) in memoryPieceList.withIndex()) {
+            if (item.visited == 0 && item.writed == 1)
+                return index
+            else
+                item.visited = 0
+        }
+        return searchReplacedPiece()
     }
+
     for (item in pageList) {
-        countTime()
         val searchIndex = containsPageInMemoryPiece(item)
         if (searchIndex == -1) {      //不在内存块中
             if (memoryPieceList.size < numOfMemoryPiece) {
                 memoryPieceList.add(MemoryPiece(item))
             } else {
                 cntOfExchange++
-                val replacedIndex = searchLeastRecentlyUsedPiece()
+                val replacedIndex = searchReplacedPiece()
                 memoryPieceList[replacedIndex].value = item
-                memoryPieceList[replacedIndex].time = 0
+                memoryPieceList[replacedIndex].visited = 1
+                memoryPieceList[replacedIndex].writed = Random().nextInt(10) % 2
             }
             output()
             cntOfLack++
-        } else {
-            memoryPieceList[searchIndex].time = 0
+        } else {        //已经在内存中
+            memoryPieceList[searchIndex].visited = 1
+            memoryPieceList[searchIndex].writed = Random().nextInt(10) % 2
         }
     }
 
     println("缺页中断的次数为:$cntOfLack")
     println("页面置换的次数为:$cntOfExchange")
 }
-
