@@ -27,7 +27,7 @@ fun main(args: Array<String>) {
         var value: Int
         do {
             value = Random().nextInt(numOfPage)
-        } while (pageList.size != 0 && pageList[pageList.size - 1] == value)
+        } while (pageList.size != 0 && pageList.last() == value)
         pageList.add(value)
         print("$value\t")
     }
