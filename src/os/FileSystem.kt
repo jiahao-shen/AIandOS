@@ -14,19 +14,16 @@ val scan = Scanner(System.`in`)
  */
 class FileNode(var fileName: String, var type: Int, var permission: Int, var size: Int, var content: String?, var fatherNode: FileNode?)
 
-val fileList = ArrayList<FileNode>()
-//val currentFileList
-lateinit var currentPath: FileNode
+val fileList = ArrayList<FileNode>()        //文件列表
 
-lateinit var username: String
+lateinit var currentPath: FileNode      //当前路径
 
-lateinit var password: String
-
+//初始化文件系统
 fun initFileSystem() {
-    val rootNode = FileNode("/", 1, 2, 0, null, null)
+    val rootNode = FileNode("/", 1, 0, 0, null, null)
     currentPath = rootNode
     fileList.add(rootNode)
-    fileList.add(FileNode("bin", 1, 2, 0, null, rootNode))
+    fileList.add(FileNode("bin", 1, 1, 0, null, rootNode))
     fileList.add(FileNode("usr", 1, 2, 0, null, rootNode))
     fileList.add(FileNode("etc", 1, 2, 0, null, rootNode))
 }
@@ -37,9 +34,9 @@ fun login() {
     val PASSWORD = "258667"
     while (true) {
         print("Please enter your username:")
-        username = scan.next()
+        val username = scan.next()
         print("Please enter your password:")
-        password = scan.next()
+        val password = scan.next()
         if (username == USERNAME && password == PASSWORD) {
             println("Login Success")
             return
@@ -55,7 +52,13 @@ fun listAllFile() {
     println("-----------------------------------------------------------")
     for (item in fileList) {
         if (item.fatherNode == currentPath) {
-            System.out.printf("%-15s%-15s%-15s\n", item.fileName, item.size, item.permission)
+            val permission = when (item.permission) {
+                0 -> "--"
+                1 -> "R-"
+                2 -> "RW"
+                else -> "--"
+            }
+            System.out.printf("%-15s%-15s%-15s\n", item.fileName, item.size, permission)
         }
     }
 
@@ -65,13 +68,13 @@ fun listAllFile() {
 fun changeDir(name: String) {
     when (name) {
         ".." -> {       //退到父目录
-            if (currentPath.fatherNode != null) {
+            currentPath.fatherNode?.let {
                 currentPath = currentPath.fatherNode!!
             }
         }
         else -> {
             for (item in fileList) {
-                if (item.fatherNode == currentPath && item.type == 1 && item.fileName == name) {        //找到对应文件名的文件
+                if (item.fatherNode == currentPath && item.type == 1 && item.fileName == name) {        //找到对应名称的文件夹
                     if (item.permission == 0) {     //没有进入权限
                         println("cd: permission denied: $name")
                     } else {    //否则更改当前路径
@@ -96,7 +99,7 @@ fun createDir(name: String) {
     if (currentPath.permission == 2)        //当前文件夹有权限修改
         fileList.add(FileNode(name, 1, 2, 0, null, currentPath))
     else {
-        println("You don't have permission to create a directory")      //当前文件夹没有权限创建
+        println("mkdir: $name: Permission denied")      //当前文件夹没有权限创建
     }
 }
 
@@ -104,7 +107,7 @@ fun createDir(name: String) {
 fun removeFile(name: String) {
     for (item in fileList) {
         if (item.fatherNode == currentPath && item.fileName == name) {      //找到对应文件
-            if (currentPath.permission == 2) {     //当前路径有删除权限
+            if (currentPath.permission == 2) {     //当前路径有写权限
                 print("Are you sure to delete $name? ")
                 when (scan.next()) {
                     "Yes", "yes" -> {
@@ -112,7 +115,7 @@ fun removeFile(name: String) {
                         var node = currentPath      //递归更新大小
                         while (true) {
                             node.size -= item.size
-                            if (node.fatherNode == null)
+                            if (node.fatherNode != null)
                                 break
                             else
                                 node = node.fatherNode!!
@@ -150,18 +153,19 @@ fun showCurrentPath() {
     }
 }
 
+//编辑文件
 fun vimFile(name: String) {
     for (item in fileList) {
         if (item.fatherNode == currentPath && item.fileName == name) {      //根据名字查找
             when (item.type) {
                 0 -> {          //如果是文件夹则不能编辑
-                    println("You cannot edit a directory")
-                    return
+                    println("vim: $name: cannot edit a directory")
                 }
                 1 -> {      //否则直接编辑
                     writeFile(item)
                 }
             }
+            return
         }
     }
     createFile(name)        //创建新文件
@@ -172,9 +176,9 @@ fun createFile(name: String) {
         val file = FileNode(name, 0, 2, 0, null, currentPath)       //创建新文件
         writeFile(file)     //写文件
         fileList.add(file)      //添加
-        println("Create file success")
+        println("create: $name: success")
     } else {
-        println("You don't have permission to edit file")       //当前路径没有写权限
+        println("vim: $name: Permission denied")       //当前路径没有写权限
     }
 }
 
@@ -182,7 +186,7 @@ fun createFile(name: String) {
 fun writeFile(file: FileNode) {
     when (file.permission) {        //文件权限判断
         0, 1 -> {       //没有写权限
-            println("You don't have permission to write")
+            println("vim: ${file.fileName}: Permission denied" )
             return
         }
         2 -> {      //有写权限
@@ -190,7 +194,7 @@ fun writeFile(file: FileNode) {
             val content = scan.nextLine()
             file.content = content
             file.size = content.length
-            var node = currentPath
+            var node = currentPath      //递归增加文件大小
             while (true) {
                 node.size += file.size
                 if (node.fatherNode == null)
@@ -206,13 +210,13 @@ fun writeFile(file: FileNode) {
 fun readFile(name: String) {
     for (item in fileList) {
         if (item.fatherNode == currentPath && item.fileName == name) {
-            if (item.type == 1) {       //不能读取一个文件夹
-                println("You cannot read a directory")
+            if (item.type == 1) {       //不能输出一个文件夹
+                println("cat: $name: cannot cat a directory")
                 return
             }
             when (item.permission) {
                 0 -> {      //没有读权限
-                    println("You don't have permission to read")
+                    println("cat: $name: Permission denied")
                     return
                 }
                 else -> {       //有读权限则输出内容

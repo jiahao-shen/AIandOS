@@ -6,11 +6,7 @@ fun main(args: Array<String>) {
 
     val scan = Scanner(System.`in`)
 
-    class MemoryPiece(var startAddress: Int, var size: Int, var status: Boolean = false) : Comparable<MemoryPiece> {        //起始地址,大小,状态
-        override fun compareTo(other: MemoryPiece): Int {       //按起始地址排序
-            return startAddress - other.startAddress
-        }
-    }    //空闲区表结构
+    class MemoryPiece(var startAddress: Int, var size: Int, var status: Boolean = false)    //空闲区表结构
 
     val startAddressList = ArrayList<Int>()     //起始地址序列
 
@@ -22,22 +18,22 @@ fun main(args: Array<String>) {
     var lastIndex = 0      //NF算法中指向最后一次分配的
 
     fun output() {      //输出
-        println("分区号\t\t分区始址\t\t分区大小\t\t状态")
+        System.out.printf("%-10s%-15s%-15s%-20s\n", "No", "Start", "Size", "Status")
         var index = 0
         for (item in memoryTable) {
             if (startAddressList.contains(item.startAddress)) {
                 println("----------------------------------------------------------------------")
                 if (item.status) {
-                    println("$index\t\t\t${item.startAddress}\t\t\t${item.size}\t\t\tRunning")
+                    System.out.printf("%-10s%-15s%-15s%-20s\n", index, item.startAddress, item.size, "Running")
                 } else {
-                    println("$index\t\t\t${item.startAddress}\t\t\t${item.size}\t\t\t未分配")
+                    System.out.printf("%-10s%-15s%-15s%-20s\n", index, item.startAddress, item.size, "未分配")
                 }
                 index++
             } else {
                 if (item.status) {
-                    println("\t\t\t${item.startAddress}\t\t\t${item.size}\t\t\tRunning")
+                    System.out.printf("%-10s%-15s%-15s%-20s\n", "", item.startAddress, item.size, "Running")
                 } else {
-                    println("\t\t\t${item.startAddress}\t\t\t${item.size}\t\t\t未分配")
+                    System.out.printf("%-10s%-15s%-15s%-20s\n", "", item.startAddress, item.size, "未分配")
                 }
             }
         }
@@ -50,7 +46,7 @@ fun main(args: Array<String>) {
         for (i in 0 until numOfMemoryPiece) {
             address += Random().nextInt(addressFactor)
             val size = Random().nextInt(sizeFactor) + minSize
-            memoryTable.add(MemoryPiece(address, size, false))
+            memoryTable.add(MemoryPiece(address, size))
             startAddressList.add(address)
             address += size + 1
         }
@@ -125,11 +121,10 @@ fun main(args: Array<String>) {
         if (freePiece.size - requestSize < minSize) {
             freePiece.status = true
         } else {
-            memoryTable.add(MemoryPiece(freePiece.startAddress, requestSize, true))
+            memoryTable.add(id, MemoryPiece(freePiece.startAddress, requestSize, true))
             freePiece.size -= requestSize
             freePiece.startAddress += requestSize
         }
-        memoryTable.sort()
     }
 
     //请求内存
