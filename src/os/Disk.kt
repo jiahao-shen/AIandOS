@@ -11,13 +11,6 @@ fun main(args: Array<String>) {
 
     val diskRequestList = ArrayList<Int>()
 
-//    println("请输入磁道个数:")
-//    val n = scan.nextInt()
-//
-//    for (i in 0 until n) {
-//        diskRequestList.add(scan.nextInt())
-//    }
-
     diskRequestList.add(55)
     diskRequestList.add(58)
     diskRequestList.add(39)
@@ -28,10 +21,7 @@ fun main(args: Array<String>) {
     diskRequestList.add(38)
     diskRequestList.add(184)
 
-//    println("请输入磁头当前位置:")
     val currentDisk = 100
-
-//    currentDisk = scan.nextInt()
 
     println("磁道序列初始化成功:")
     for (item in diskRequestList) {
@@ -190,7 +180,6 @@ fun main(args: Array<String>) {
         }
 
         for (item in boundList) {
-            println("${item.key} => ${item.value}")
             for (i in 0..(item.value - item.key)) {
                 val index = searchDisk(item.key, item.value)
                 moveDistance += abs(diskRequestList[index] - current)
