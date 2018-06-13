@@ -158,10 +158,10 @@ fun vimFile(name: String) {
     for (item in fileList) {
         if (item.fatherNode == currentPath && item.fileName == name) {      //根据名字查找
             when (item.type) {
-                0 -> {          //如果是文件夹则不能编辑
+                1 -> {          //如果是文件夹则不能编辑
                     println("vim: $name: cannot edit a directory")
                 }
-                1 -> {      //否则直接编辑
+                0 -> {      //否则直接编辑
                     writeFile(item)
                 }
             }
